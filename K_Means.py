@@ -5,24 +5,31 @@ import numpy as np
 file_name = sys.argv[1]
 no_cluster = int(sys.argv[2])
 iterations = int(sys.argv[3])
-
-X,y,unique_labels = helpers.import_txt(file_name)
-
-def get_data(filename, num_of_clusters, centroidsArr, num_of_iterations):
-    centroid_array = np.array(get_initial_clusters(y,num_of_clusters))
+centroid_val = []
 
 def get_initial_clusters(original_data,number_of_clusters):
-    return (np.random.choice(y.shape[0], number_of_clusters, replace=False))
+    return (np.random.choice(original_data.shape[0], number_of_clusters, replace=False))
 
-get_data(file_name, no_cluster, centroid_id, iterations)
+def get_data(file_name,number_of_clusters,centroid_arr,number_of_iterations):
+    with open(file_name) as textFile:
+        lines = [line.replace("\n","").split("\t") for line in textFile]
+        data = np.array(lines, dtype='float')
+        # print(data)
+        if(len(centroid_arr)==0):
+            centroid_no=np.asarray(get_initial_clusters(data,no_cluster))
+        else:
+            centroid_no=np.asarray(centroid_arr)
+        print(centroid_no)
+        for i in range(len(centroid_no)):
+            centroid_val.append(data[centroid_no[i]-1])
+        
+        print(centroid_val)
+        centroids = np.asarray(centroid_val)
+        centroids = centroids[:,2:]
+        print("Actual Centroid vals")
+        print(centroids)
+        # print(centroids)
 
-
-
-
-
-
-# print(X)
-# print(y)
-# print(unique_labels)
+get_data(file_name,no_cluster,[],iterations)
 
 
