@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
@@ -9,8 +10,8 @@ def import_txt(filename):
 
     data = data.sample(frac=1, random_state=42)
 
-    X = data.iloc[:, 2:]
-    y = data.iloc[:, 1]
+    X = data.iloc[:, 2:].copy()
+    y = data.iloc[:, 1].copy()
 
     unique_labels = list(set(y))
 
@@ -21,9 +22,58 @@ def import_txt(filename):
 
 def get_validation(ground_truth, predicted, type):
     if type == "rand":
-        return jaccard_similarity_score(ground_truth, predicted)
+        return rand(ground_truth, predicted)
     elif type == "jaccard":
-        return adjusted_rand_score(ground_truth, predicted)
+        return jaccard(ground_truth, predicted)
+
+    # if type == "rand":
+    #     return adjusted_rand_score(ground_truth, predicted)
+    # elif type == "jaccard":
+    #     return jaccard_similarity_score(ground_truth, predicted)
+
+
+def rand(y, predicted):
+
+    n = y.shape[0]
+
+    predicted_bools = np.zeros((n, n))
+    y_bools = np.zeros((n, n))
+
+    for i in range(n):
+        predicted_bools[i][i] = y_bools[i][i] = 1
+        for j in range(i+1, n):
+            if predicted[i] == predicted[j]:
+                predicted_bools[i][j] = predicted_bools[j][i] = 1
+            if y[i] == y[j]:
+                y_bools[i][j] = y_bools[j][i] = 1
+
+    numerator = np.sum(np.logical_and(
+        predicted_bools, y_bools))
+    denominator = np.sum(np.logical_or(
+        predicted_bools, y_bools))
+    return numerator / denominator
+
+
+def jaccard(y, predicted):
+
+    n = y.shape[0]
+
+    predicted_bools = np.zeros((n, n))
+    y_bools = np.zeros((n, n))
+
+    for i in range(n):
+        predicted_bools[i][i] = y_bools[i][i] = 1
+        for j in range(i+1, n):
+            if predicted[i] == predicted[j]:
+                predicted_bools[i][j] = predicted_bools[j][i] = 1
+            if y[i] != -1 and y[j] != -1 and y[i] == y[j]:
+                y_bools[i][j] = y_bools[j][i] = 1
+
+    numerator = np.sum(np.logical_and(
+        predicted_bools, y_bools))
+    denominator = np.sum(np.logical_or(
+        predicted_bools, y_bools))
+    return numerator / denominator
 
 
 def pca(X):
