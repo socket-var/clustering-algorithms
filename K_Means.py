@@ -37,24 +37,28 @@ def kmeans(data,centroids,num_of_iterations,num_of_clusters,iteration_count):
         clusters_id[dist.index(min(dist))].append(i+1)
         
     iteration_count+=1
-    new_centroids(data,centroids,clusters,clusters_id,num_of_iterations,num_of_clusters,iteration_count)
+    print("Iteration Count ",iteration_count)
+    new_centroids(data,centroids,clusters,clusters_id,iterations,no_cluster,iteration_count)
 
-# get new centroids 
+# get new centroids and call k-means until the previous centroids and current centroids converge
 def new_centroids(data,centroids,clusters,clusters_id,num_of_iterations,num_of_clusters,iteration_count):
-    
-    new_cluster = [[float(0) for _ in range(centroids.shape[1])] for _ in range(num_of_clusters)]
-    new_cluster = np.asarray(new_cluster)
+    new_centroid = [[float(0) for _ in range(centroids.shape[1])] for _ in range(num_of_clusters)]
+    new_centroid = np.asarray(new_centroid)
 
     for i in range(len(clusters)):
         for new in clusters[i]:
-            new_cluster[i] = list(map(add,new_cluster[i],new))
-        for j in range(len(new_cluster[i])):
-            new_cluster[i][j] = float(new_cluster[i][j])/len(clusters[i])
+            new_centroid[i] = list(map(add,new_centroid[i],new))
+        for j in range(len(new_centroid[i])):
+            new_centroid[i][j] = float(new_centroid[i][j])/len(clusters[i])
     
-    print(centroids)
-    print("New")
-    print(new_cluster)         
-        
+    c = [tuple(x) for x in centroids]
+    n = [tuple(y) for y in new_centroid]
+    diff = set(c)-set(n)
+    if(len(diff)==0 or iteration_count==iterations):
+        print("Converged")
+    else:
+        kmeans(data,new_centroid,iterations,no_cluster,iteration_count)
+
         
 file_name = sys.argv[1]
 no_cluster = int(sys.argv[2])
