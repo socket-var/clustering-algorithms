@@ -18,39 +18,58 @@ def dbscan(X, epsilon, min_pts):
     predicted = np.zeros(X.shape[0])
     cluster = 0
 
-    for idx, point in enumerate(X.T):
-        if not predicted[idx]:
-            neighbor_points = region_query(X, point, epsilon)
-            if len(neighbor_points) < min_pts:
-                predicted[idx] = -1
-            else:
+    for idx in range(X.shape[0]):
+        if predicted[idx] == 0:
+            neighbor_points = region_query(X, idx, epsilon)
+            if len(neighbor_points) >= min_pts:
                 cluster += 1
-                predicted[idx] = cluster
-                neighbor_points, predicted = expand_cluster(X, idx, point, neighbor_points,
-                                                            cluster, epsilon, min_pts, predicted)
+                predicted = expand_cluster(X, idx, neighbor_points,
+                                           cluster, epsilon, min_pts, predicted)
+            else:
+                predicted[idx] = -1
+
+    unique, counts = np.unique(predicted, return_counts=True)
+
+    unique = [int(i) for i in unique]
+    print("Cluster: count = " + str(dict(zip(unique, counts))))
+
+    centroids = {}
+    for x in range(int(np.min(predicted)), int(np.max(predicted)) + 1):
+        if x == 0:
+            continue
+        centroids[x] = np.asarray(np.where(predicted == x))+1
+
+    # Printing Centroids
+    print("Cluster: points in cluster = ")
+    for key, value in centroids.items():
+        print(str(key) + ":" + str(value))
+
     return predicted
 
 
-def expand_cluster(X, point_idx, point, neighbor_points, cluster, epsilon, min_pts, predicted):
-
+def expand_cluster(X, pt_idx, neighbor_points, cluster, epsilon, min_pts, predicted):
+    predicted[pt_idx] = cluster
     for neighbor in neighbor_points:
-        if not predicted[point_idx]:
-            neighbors = region_query(X, point, epsilon)
-            if len(neighbors) >= min_pts:
-                neighbor_points.append(neighbor)
+        if predicted[neighbor] == -1 or predicted[neighbor] == 0:
+            predicted[neighbor] = cluster
 
-        predicted[point_idx] = cluster
+        if predicted[neighbor] == 0:
+            neighbor_pts = region_query(X, neighbor, epsilon)
 
-    return neighbor_points, predicted
+            if len(neighbor_pts) >= min_pts:
+                neighbor_points += neighbor_pts
+
+    return predicted
 
 
-def region_query(X, point, epsilon):
+def region_query(X, point_idx, epsilon):
     neighbor_points = []
 
-    for candidate_point in X:
-        distance = np.linalg.norm(point-candidate_point)
-        if distance <= epsilon and point != neighbor_points:
-            neighbor_points.append(candidate_point)
+    for idx in range(X.shape[0]):
+
+        distance = np.linalg.norm(X[point_idx] - X[idx])
+        if distance <= epsilon:
+            neighbor_points.append(idx)
 
     return neighbor_points
 
@@ -60,7 +79,7 @@ epsilon = float(input("Enter epsilon value: "))
 
 min_pts = float(input("Enter min_pts value: "))
 
-predicted = dbscan(X, epsilon, min_pts)
+predicted = dbscan(np.array(X), epsilon, min_pts)
 
 
 # 4. Find Rand index and Jaccard
@@ -68,7 +87,7 @@ predicted = dbscan(X, epsilon, min_pts)
 rand_score = helpers.get_validation(y, predicted, type="rand")
 jaccard_score = helpers.get_validation(y, predicted, type="jaccard")
 
-print(predicted)
+# print(predicted)
 print(rand_score)
 print(jaccard_score)
 
