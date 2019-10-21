@@ -76,7 +76,7 @@ rownumber = 0
 uniquelabels = set()
 
 # Read data from file
-with open(filename1) as csv_file:
+with open(filename2) as csv_file:
     csv_reader = csv.reader(csv_file, delimiter='\t')
     for row in csv_reader:
     	line = row[2:]
@@ -91,8 +91,8 @@ with open(filename1) as csv_file:
 distMatrix = getDistMatrix(GeneExpressions)
 
 # Testing data
-distMatrix = [[0.00,0.71,5.66,3.61,4.24,3.20],[0.71,0.00,4.95,2.92,3.54,2.50],[5.66,4.95,0.00,2.24,1.41,2.50],[3.61,2.92,2.24,0.00,1.00,0.50],[4.24,3.54,1.41,1.00,0.00,1.12],[3.20,2.50,2.50,0.50,1.12,0.00]]
-rowsnumbers = [[0],[1],[2],[3],[4],[5]]
+#distMatrix = [[0.00,0.71,5.66,3.61,4.24,3.20],[0.71,0.00,4.95,2.92,3.54,2.50],[5.66,4.95,0.00,2.24,1.41,2.50],[3.61,2.92,2.24,0.00,1.00,0.50],[4.24,3.54,1.41,1.00,0.00,1.12],[3.20,2.50,2.50,0.50,1.12,0.00]]
+#rowsnumbers = [[0],[1],[2],[3],[4],[5]]
 distMatrix = np.array(distMatrix)
 #print(distMatrix)
 while(len(distMatrix)>=2):
