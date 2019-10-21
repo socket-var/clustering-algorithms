@@ -12,20 +12,12 @@ def updateDistMatrix(distMatrix,rowsnumbers):
 	for i in range(0,len(c1dist)):
 		if(i!=column):
 			newdist.append(min(c1dist[i],c2dist[i]))
-	#c1 = rowsnumbers[row]
-	#c2 = rowsnumbers[column]
 	rowsnumbers[row].extend(rowsnumbers[column])
 	distMatrix = np.delete(distMatrix,rdim,0)
-	distMatrix = np.delete(distMatrix,rdim,1)
-	#c1 = np.concatenate((c1,c2),axis=0)
 	for i in range(0,len(distMatrix)):
 		distMatrix[i][row] = newdist[i]
 		distMatrix[row][i] = newdist[i]
-	#rowsnumbers[row] = c1
 	rowsnumbers.pop(column)
-	#rowsnumbers = np.delete(rowsnumbers,column)
-	#print(distMatrix)
-	#print(rowsnumbers)
 	return distMatrix,rowsnumbers
 
 # Gets the minimum from the distance matrix
@@ -100,8 +92,7 @@ while(len(distMatrix)>=2):
 	print(distMatrix)
 	print(rowsnumbers)
 	distMatrix,rowsnumbers = updateDistMatrix(distMatrix,rowsnumbers)
-	#raise NotImplementedError
-#print(row,column)
+
 
 
 
