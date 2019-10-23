@@ -62,8 +62,42 @@ with open(filename) as csv_file:
 
 simMatrix = getSimilarityMatrix(GeneExpressions,sigma)
 lapMatrix = getLaplacianMatrix(simMatrix)
-#print(lapMatrix)
-#print(np.shape(simMatrix))
+
+# Computes eigen values and eigen vectors for laplacian matrix
+eigval,eigvec = np.linalg.eig(lapMatrix)
+
+#print(eigval)
+min1 = sys.maxsize
+min2 = sys.maxsize
+min1Index = -1
+min2Index = -1
+for i in range(0,len(eigval)):
+	if(eigval[i]<min1):
+		min2 = min1
+		min2Index = min1Index
+		min1 = eigval[i]
+		min1Index = i
+	elif(eigval[i]<min2):
+		min2 = eigval[i]
+		min2Index = i
+
+print("Minimum values")
+print(min1,min2)
+print("Minimum indices")
+print(min1Index,min2Index)
+
+eigvec1 = eigvec[min1Index]
+eigvec2 = eigvec[min2Index]
+
+reducedSpace = []
+reducedSpace.append(eigvec1)
+reducedSpace.append(eigvec2)
+reducedSpace = np.array(reducedSpace)
+reducedSpace = np.ndarray.transpose(reducedSpace)
+print(reducedSpace)
+print(np.shape(reducedSpace))
+
+
 
 
 
