@@ -12,8 +12,11 @@ def updateDistMatrix(distMatrix,rowsnumbers):
 	for i in range(0,len(c1dist)):
 		if(i!=column):
 			newdist.append(min(c1dist[i],c2dist[i]))
+	#c1 = rowsnumbers[row]
+	#c2 = rowsnumbers[column]
 	rowsnumbers[row].extend(rowsnumbers[column])
 	distMatrix = np.delete(distMatrix,rdim,0)
+	distMatrix = np.delete(distMatrix,rdim,1)
 	for i in range(0,len(distMatrix)):
 		distMatrix[i][row] = newdist[i]
 		distMatrix[row][i] = newdist[i]
@@ -32,7 +35,6 @@ def getMin(distMatrix):
 				row = i
 				col = j
 	return row,col
-
 
 # Computes eucledian distances for two points
 def getEucledianDist(GeneExpressions,index1,index2):
@@ -58,8 +60,9 @@ def getDistMatrix(GeneExpressions):
 	distMatrix = np.array(distMatrix)
 	return distMatrix
 
-filename1 = "cho.txt"
-filename2 = "iyer.txt"
+
+filename = sys.argv[1] 
+k = int(sys.argv[2])
 
 GeneExpressions = []
 Groundtruth = []
@@ -68,7 +71,7 @@ rownumber = 0
 uniquelabels = set()
 
 # Read data from file
-with open(filename2) as csv_file:
+with open(filename) as csv_file:
     csv_reader = csv.reader(csv_file, delimiter='\t')
     for row in csv_reader:
     	line = row[2:]
@@ -88,10 +91,10 @@ distMatrix = getDistMatrix(GeneExpressions)
 distMatrix = np.array(distMatrix)
 #print(distMatrix)
 while(len(distMatrix)>=2):
-	#row,column = getMin(distMatrix)
-	print(distMatrix)
-	print(rowsnumbers)
+	if(len(rowsnumbers) == k):
+		break
 	distMatrix,rowsnumbers = updateDistMatrix(distMatrix,rowsnumbers)
+print(rowsnumbers)
 
 
 
