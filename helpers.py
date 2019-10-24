@@ -73,7 +73,10 @@ def jaccard(y, predicted):
         predicted_bools, y_bools))
     denominator = np.sum(np.logical_or(
         predicted_bools, y_bools))
-    return numerator / denominator
+    # print("Numerator val",numerator)
+    # print("Denominator val",denominator)
+    
+    return float(numerator) / denominator
 
 
 def pca(X):
