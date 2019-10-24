@@ -60,27 +60,8 @@ def rand(ground_truth, predicted):
     gt_matrix = _make_incidence_matrix(ground_truth)
     p_matrix = _make_incidence_matrix(predicted)
 
-<<<<<<< HEAD
-    for i in range(n):
-        predicted_bools[i][i] = y_bools[i][i] = 1
-        for j in range(i+1, n):
-            if predicted[i] == predicted[j]:
-                predicted_bools[i][j] = predicted_bools[j][i] = 1
-            if y[i] != -1 and y[j] != -1 and y[i] == y[j]:
-                y_bools[i][j] = y_bools[j][i] = 1
-
-    numerator = np.sum(np.logical_and(
-        predicted_bools, y_bools))
-    denominator = np.sum(np.logical_or(
-        predicted_bools, y_bools))
-    # print("Numerator val",numerator)
-    # print("Denominator val",denominator)
-    
-    return float(numerator) / denominator
-=======
     TT, TF, FT, FF = _get_confusion_matrix(gt_matrix, p_matrix)
     return (TT + FF) / (TT + TF + FT + FF)
->>>>>>> 4a066ada810063518e8431512c1bf87f8078e892
 
 
 def pca(X):
