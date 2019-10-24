@@ -102,16 +102,68 @@ print(np.shape(reducedSpace))
 
 # Run K-means on reduced space n*k to produce k clusters
 centroid_val = []
+iterations = 100
+iteration_count = 0
 def get_initial_clusters(original_data,num_of_clusters):
     return (np.random.choice(original_data.shape[0], num_of_clusters, replace=False))
 
 centroid_no = np.asarray(get_initial_clusters(reducedSpace,k))
-print(centroid_no)
+# print(centroid_no)
 for i in range(len(centroid_no)):
     centroid_val.append(reducedSpace[centroid_no[i]-1])
 
 centroids = np.asarray(centroid_val)
-print(centroids)
+# print(centroids)
+
+def new_centroids(data,centroids,clusters,clusters_id,num_of_iterations,num_of_clusters,iteration_count):
+    new_centroid = [[float(0) for _ in range(centroids.shape[1])] for _ in range(num_of_clusters)]
+    new_centroid = np.asarray(new_centroid)
+
+    for i in range(len(clusters)):
+        for new in clusters[i]:
+            new_centroid[i] = list(map(add,new_centroid[i],new))
+        for j in range(len(new_centroid[i])):
+            new_centroid[i][j] = float(new_centroid[i][j])/len(clusters[i])
+    
+    c = [tuple(x) for x in centroids]
+    n = [tuple(y) for y in new_centroid]
+    diff = set(c)-set(n)
+    # sums = 0
+    d = dict()
+    if(len(diff)==0 or iteration_count==iterations):
+        print("Converged")
+        # To print the clusters of 1-386 genes in order
+        # for x in range(len(clusters_id)):
+        #     for y in range(len(clusters_id[x])):
+        #         d[clusters_id[x][y]] = x+1
+        # print("Clusters")
+        # vals = [d[x] for x in sorted(d.keys())]
+        # print(vals)
+        
+        for i in range(len(clusters_id)):
+            print("Cluster "+str(i+1))
+            # sums+=len(clusters_id[i])
+            print(clusters_id[i])
+    else:
+        kmeans(data,new_centroid,iterations,k,iteration_count)
+
+def kmeans(data,centroids,num_of_iterations,num_of_clusters,iteration_count):
+    clusters = [[] for _ in range(num_of_clusters)]
+    clusters_id = [[] for _ in range(num_of_clusters)]
+    
+    for i in range(data.shape[0]):
+        gene_data = data[i,:]
+        dist = []
+        for j in range(centroids.shape[0]):
+            dist.append(distance.euclidean(gene_data,centroids[j]))
+        clusters[dist.index(min(dist))].append(gene_data)
+        clusters_id[dist.index(min(dist))].append(i+1)
+            
+    iteration_count+=1
+    print("Iteration Count ",iteration_count)
+    new_centroids(data,centroids,clusters,clusters_id,iterations,k,iteration_count)
+
+kmeans(reducedSpace,centroids,iterations,k,iteration_count)
 
 
 

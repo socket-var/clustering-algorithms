@@ -20,6 +20,7 @@ def get_data(file_name,num_of_clusters,centroid_arr,num_of_iterations):
         
         centroids = np.asarray(centroid_val)
         centroids = centroids[:,2:]
+        
         kmeans(data,centroids,iterations,no_cluster,iteration_count)
 
 # Compute Euclidean distance for all the genes wrt Clusters.
@@ -35,7 +36,7 @@ def kmeans(data,centroids,num_of_iterations,num_of_clusters,iteration_count):
             dist.append(distance.euclidean(gene_data,centroids[j]))
         clusters[dist.index(min(dist))].append(gene_data)
         clusters_id[dist.index(min(dist))].append(i+1)
-        
+            
     iteration_count+=1
     print("Iteration Count ",iteration_count)
     new_centroids(data,centroids,clusters,clusters_id,iterations,no_cluster,iteration_count)
@@ -54,8 +55,22 @@ def new_centroids(data,centroids,clusters,clusters_id,num_of_iterations,num_of_c
     c = [tuple(x) for x in centroids]
     n = [tuple(y) for y in new_centroid]
     diff = set(c)-set(n)
+    sums = 0
+    d = dict()
     if(len(diff)==0 or iteration_count==iterations):
         print("Converged")
+        # To print the clusters of 1-386 genes in order
+        # for x in range(len(clusters_id)):
+        #     for y in range(len(clusters_id[x])):
+        #         d[clusters_id[x][y]] = x+1
+        # print("Clusters")
+        # vals = [d[x] for x in sorted(d.keys())]
+        # print(vals)
+
+        for i in range(len(clusters_id)):
+            print("Cluster "+str(i+1))
+            sums+=len(clusters_id[i])
+            print(clusters_id[i])
     else:
         kmeans(data,new_centroid,iterations,no_cluster,iteration_count)
 
