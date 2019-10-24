@@ -1,7 +1,9 @@
 import numpy as np
 import csv
 import sys
+from scipy.spatial import distance
 import math
+from operator import add
 
 # Computes the Laplacian matrix
 def getLaplacianMatrix(simMatrix):
@@ -96,6 +98,20 @@ reducedSpace = np.array(reducedSpace)
 reducedSpace = np.ndarray.transpose(reducedSpace)
 print(reducedSpace)
 print(np.shape(reducedSpace))
+
+
+# Run K-means on reduced space n*k to produce k clusters
+centroid_val = []
+def get_initial_clusters(original_data,num_of_clusters):
+    return (np.random.choice(original_data.shape[0], num_of_clusters, replace=False))
+
+centroid_no = np.asarray(get_initial_clusters(reducedSpace,k))
+print(centroid_no)
+for i in range(len(centroid_no)):
+    centroid_val.append(reducedSpace[centroid_no[i]-1])
+
+centroids = np.asarray(centroid_val)
+print(centroids)
 
 
 
