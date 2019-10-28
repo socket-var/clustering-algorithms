@@ -2,77 +2,95 @@ import helpers
 import sys
 import numpy as np 
 from scipy.spatial import distance
+from numpy import linalg
 from operator import add
+import sklearn.metrics
+from sklearn.cluster import KMeans
 
 # Returns random clusters as initial clusters
 def get_initial_clusters(original_data,num_of_clusters):
     return (np.random.choice(original_data.shape[0], num_of_clusters, replace=False))
 
 # Processes the gene data and gives the initial cluster centers along with gene expressions
-def get_data(file_name,num_of_clusters,centroid_arr,num_of_iterations):
+def get_data(file_name,num_of_clusters,centroid_arr,num_of_iterations,kmean_count,overall_iterations,max_jaccard,max_clusters):
     with open(file_name) as textFile:
         lines = [line.replace("\n","").split("\t") for line in textFile]
         data = np.array(lines, dtype='float')
-        centroid_no = np.asarray(get_initial_clusters(data,no_cluster))
         
+        if(centroid_arr==[]):
+            centroid_no = np.array(get_initial_clusters(data,no_cluster))
+            print(centroid_no)
+        else:
+            centroid_no = np.array(centroid_arr)
+            print(centroid_no)
+        
+        centroid_val = []
         for i in range(len(centroid_no)):
             centroid_val.append(data[centroid_no[i]-1])
         
         centroids = np.asarray(centroid_val)
         centroids = centroids[:,2:]
-        
-        kmeans(data,centroids,iterations,no_cluster,iteration_count)
+
+        kmeans(data,centroids,iterations,no_cluster,iteration_count,kmean_count,overall_iterations,max_jaccard,max_clusters)
 
 # Compute Euclidean distance for all the genes wrt Clusters.
 # Get the IDs of genes assigned to the different clusters.
-def kmeans(data,centroids,num_of_iterations,num_of_clusters,iteration_count):
+def kmeans(data,centroids,num_of_iterations,num_of_clusters,iteration_count,kmean_count,overall_iterations,max_jaccard,max_clusters):
     clusters = [[] for _ in range(num_of_clusters)]
     clusters_id = [[] for _ in range(num_of_clusters)]
-    
-    for i in range(data.shape[0]):
-        gene_data = data[i,2:data.shape[1]]
+
+    for i in range(0,386):
+        gene_data = data[i,2:18]
         dist = []
-        for j in range(centroids.shape[0]):
-            dist.append(distance.euclidean(gene_data,centroids[j]))
-        clusters[dist.index(min(dist))].append(gene_data)
-        clusters_id[dist.index(min(dist))].append(i+1)
-            
+        minval = float('inf') 
+        minIndex = -1
+        for j in range(0,5):
+            if(distance.euclidean(gene_data,centroids[j])<minval):
+                minval = distance.euclidean(gene_data,centroids[j])
+                minIndex = j
+        #print(minIndex)
+        clusters[minIndex].append(gene_data)
+        clusters_id[minIndex].append(i+1)
+    
     iteration_count+=1
     print("Iteration Count ",iteration_count)
-    new_centroids(data,centroids,clusters,clusters_id,iterations,no_cluster,iteration_count)
+    
+    new_centroids(data,centroids,clusters,clusters_id,iterations,no_cluster,iteration_count,kmean_count,overall_iterations,max_jaccard,max_clusters)
 
 # get new centroids and call k-means until the previous centroids and current centroids converge
-def new_centroids(data,centroids,clusters,clusters_id,num_of_iterations,num_of_clusters,iteration_count):
-    new_centroid = [[float(0) for _ in range(centroids.shape[1])] for _ in range(num_of_clusters)]
-    new_centroid = np.asarray(new_centroid)
+def new_centroids(data,centroids,clusters,clusters_id,num_of_iterations,num_of_clusters,iteration_count,kmean_count,overall_iterations,max_jaccard,max_clusters):
+    #new_centroid = [[float(0) for _ in range(centroids.shape[1])] for _ in range(num_of_clusters)]
+    new_centroid = []
 
     for i in range(len(clusters)):
-        for new in clusters[i]:
-            new_centroid[i] = list(map(add,new_centroid[i],new))
-        for j in range(len(new_centroid[i])):
-            new_centroid[i][j] = float(new_centroid[i][j])/len(clusters[i])
-    
-    c = [tuple(x) for x in centroids]
-    n = [tuple(y) for y in new_centroid]
-    diff = set(c)-set(n)
-    sums = 0
+        val = np.array(clusters[i])
+        new_centroid.append((np.sum(val,0))/len(clusters[i]))
+        
+    new_centroid = np.array(new_centroid)
+    sums = np.sum(np.array(centroids)-np.array(new_centroid))
     d = dict()
-    if(len(diff)==0 or iteration_count==iterations):
+    if(sums==0 or iteration_count==iterations):
         print("Converged")
-        # To print the clusters of 1-386 genes in order
-        # for x in range(len(clusters_id)):
-        #     for y in range(len(clusters_id[x])):
-        #         d[clusters_id[x][y]] = x+1
-        # print("Clusters")
-        # vals = [d[x] for x in sorted(d.keys())]
-        # print(vals)
-
-        for i in range(len(clusters_id)):
-            print("Cluster "+str(i+1))
-            sums+=len(clusters_id[i])
-            print(clusters_id[i])
+        for x in range(len(clusters_id)):
+            for y in range(len(clusters_id[x])):
+                d[clusters_id[x][y]] = x+1
+        
+        vals = [d[x] for x in sorted(d.keys())]
+        ground_truth = list(map(int,data[:,1]))
+        
+        print("Jaccard")
+        ja = helpers.jaccard(ground_truth,vals)
+        print(ja)
+        
+        print("Rand index")
+        rd = helpers.rand(ground_truth,vals)
+        print(rd)
+        
+        # unique_predicted = list(set(vals))
+        # new_x = helpers.pca(data)
+        # helpers.scatter(new_x[:,0],new_x[:,1],vals,unique_predicted)
     else:
-        kmeans(data,new_centroid,iterations,no_cluster,iteration_count)
+        kmeans(data,new_centroid,iterations,no_cluster,iteration_count,kmean_count,overall_iterations,max_jaccard,max_clusters)
 
         
 file_name = sys.argv[1]
@@ -80,7 +98,12 @@ no_cluster = int(sys.argv[2])
 iterations = int(sys.argv[3])
 centroid_val = []
 iteration_count = 0
+kmean_count = 0
+overall_iterations = 0
+max_jaccard = float('-inf')
+max_clusters = []
 
-get_data(file_name,no_cluster,[],iterations)
+get_data(file_name,no_cluster,[],iterations,kmean_count,overall_iterations,max_jaccard,max_clusters)
+
 
 

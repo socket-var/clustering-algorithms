@@ -53,7 +53,7 @@ def jaccard(ground_truth, predicted):
     p_matrix = _make_incidence_matrix(predicted)
 
     TT, TF, FT, _ = _get_confusion_matrix(gt_matrix, p_matrix)
-    return TT / (TT + TF + FT)
+    return float(TT) / (TT + TF + FT)
 
 
 def rand(ground_truth, predicted):
@@ -61,7 +61,7 @@ def rand(ground_truth, predicted):
     p_matrix = _make_incidence_matrix(predicted)
 
     TT, TF, FT, FF = _get_confusion_matrix(gt_matrix, p_matrix)
-    return (TT + FF) / (TT + TF + FT + FF)
+    return float(TT + FF) / (TT + TF + FT + FF)
 
 
 def pca(X):
