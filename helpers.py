@@ -72,8 +72,10 @@ def pca(X):
     return new_X
 
 
-def scatter(X1, X2, labels, unique_labels):
-    plt.figure(figsize=[25, 12])
+def scatter(X1, X2, labels, unique_labels, algo="", file_name=""):
+    plt.figure(figsize=[17, 12])
+    if algo and file_name:
+        plt.title("Algorithm: {} Dataset: {}".format(algo, file_name))
     unique_encoded = [i for i in range(len(unique_labels))]
 
     colors = [plt.cm.jet(float(i)/max(unique_encoded))
@@ -82,7 +84,7 @@ def scatter(X1, X2, labels, unique_labels):
     for i, u in enumerate(unique_labels):
         xi = [X1[j] for j in range(len(X1)) if labels[j] == u]
         yi = [X2[j] for j in range(len(X2)) if labels[j] == u]
-        plt.scatter(xi, yi, c=colors[i], label=str(u), s=10)
+        plt.scatter(xi, yi, c=colors[i], label=str(u), s=11)
     plt.legend()
 
     plt.show()
