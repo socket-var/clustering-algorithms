@@ -70,10 +70,7 @@ lapMatrix = getLaplacianMatrix(simMatrix)
 
 # Computes eigen values and eigen vectors for laplacian matrix
 eigval,eigvec = np.linalg.eig(lapMatrix)
-# print("Eigval")
-# print(eigval)
-# print("Eigvec")
-# print(eigvec)
+
 eigDict = {}
 
 for i in range(len(eigval)):
@@ -83,48 +80,13 @@ for i in range(len(eigval)):
 sorted_eigval = [x for x in sorted(eigDict.keys())]
 corresponding_eigvec = [eigDict[x] for x in sorted(eigDict.keys())]
 
-
-#print(eigval)
-# min1 = sys.maxsize
-# min2 = sys.maxsize
-# min1Index = -1
-# min2Index = -1
-# for i in range(0,len(eigval)):
-# 	if(eigval[i]<min1):
-# 		min2 = min1
-# 		min2Index = min1Index
-# 		min1 = eigval[i]
-# 		min1Index = i
-# 	elif(eigval[i]<min2):
-# 		min2 = eigval[i]
-# 		min2Index = i
-
-# print("Minimum values")
-# print(min1,min2)
-# print("Minimum indices")
-# print(min1Index,min2Index)
-
-# eigvec1 = eigvec[min1Index]
-# eigvec2 = eigvec[min2Index]
 minimum_eigvals = sorted_eigval[:k]
 minimum_eigvec = np.array(corresponding_eigvec[:k])
 
 
 reducedSpace = np.ndarray.transpose(minimum_eigvec)
-
-# reducedSpace.append(eigvec1)
-# reducedSpace.append(eigvec2)
-# reducedSpace = np.array(reducedSpace)
-# reducedSpace = np.ndarray.transpose(reducedSpace)
-# print(reducedSpace)
 print(np.shape(reducedSpace))
 
-
-# kmeans = sklearn.cluster.KMeans(n_clusters=5,random_state=0).fit(reducedSpace)
-# print("Library")
-# print(kmeans.labels_)
-# print(set(kmeans.labels_))
-# Run K-means on reduced space n*k to produce k clusters
 centroid_val = []
 iterations = 100
 iteration_count = 0
@@ -132,12 +94,11 @@ def get_initial_clusters(original_data,num_of_clusters):
     return (np.random.choice(original_data.shape[0], num_clusters, replace=False))
 
 centroid_no = np.asarray(get_initial_clusters(reducedSpace,num_clusters))
-# print(centroid_no)
+
 for i in range(len(centroid_no)):
     centroid_val.append(reducedSpace[centroid_no[i]-1])
 
 centroids = np.asarray(centroid_val)
-# print(centroids)
 
 def new_centroids(reducedSpace,centroids,clusters,clusters_id,num_of_iterations,num_clusters,iteration_count):
     new_centroid = []

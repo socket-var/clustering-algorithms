@@ -38,8 +38,8 @@ def kmeans(data,centroids,num_of_iterations,num_of_clusters,iteration_count):
     clusters = [[] for _ in range(num_of_clusters)]
     clusters_id = [[] for _ in range(num_of_clusters)]
 
-    for i in range(0,386):
-        gene_data = data[i,2:18]
+    for i in range(0,len(data)):
+        gene_data = data[i,2:]
         dist = []
         minval = float('inf') 
         minIndex = -1
@@ -86,7 +86,7 @@ def new_centroids(data,centroids,clusters,clusters_id,num_of_iterations,num_of_c
         print(rd)
         
         unique_predicted = list(set(vals))
-        new_x = helpers.pca(data)
+        new_x = helpers.pca(data[:,2:])
         helpers.scatter(new_x[:,0],new_x[:,1],vals,unique_predicted)
     else:
         kmeans(data,new_centroid,iterations,no_cluster,iteration_count)
