@@ -1,3 +1,5 @@
+from collections import OrderedDict
+import helpers as h
 import numpy as np
 import csv
 import sys
@@ -60,12 +62,11 @@ def getDistMatrix(GeneExpressions):
 	distMatrix = np.array(distMatrix)
 	return distMatrix
 
-
 filename = sys.argv[1] 
 k = int(sys.argv[2])
 
 GeneExpressions = []
-Groundtruth = []
+Groundtruth = {}
 rowsnumbers = []
 rownumber = 0
 uniquelabels = set()
@@ -77,7 +78,7 @@ with open(filename) as csv_file:
     	line = row[2:]
     	line = list(map(float, line))
     	GeneExpressions.append(line)
-    	Groundtruth.append([rownumber,int(row[1])])
+    	Groundtruth[rownumber+1] = int(row[1])
     	uniquelabels.add(int(row[1]))
     	rowsnumbers.append([rownumber])
     	rownumber+=1
@@ -96,7 +97,25 @@ while(len(distMatrix)>=2):
 	distMatrix,rowsnumbers = updateDistMatrix(distMatrix,rowsnumbers)
 print(rowsnumbers)
 
+clusterassignments = {}
 
+cluster = 1
+for i in rowsnumbers:
+	for j in i:
+		clusterassignments[j+1] = cluster 
+	cluster+=1
+sorted(clusterassignments)
+sorted(Groundtruth)
+
+predicted = list(clusterassignments.values())
+unique_predicted = list(set(predicted))
+Ground = list(Groundtruth.values())
+print(h.jaccard(Ground,predicted))
+print(h.rand(Ground,predicted))
+
+new_X = h.pca(GeneExpressions)
+h.scatter(new_X[:, 0], new_X[:, 1],
+                predicted, unique_predicted)
 
 
 
