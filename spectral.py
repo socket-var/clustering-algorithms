@@ -46,6 +46,12 @@ filename = sys.argv[1]
 sigma = float(sys.argv[2]) 
 k = int(sys.argv[3])
 num_clusters = int(sys.argv[4])
+given_clusters = sys.argv[5]
+given_clusters = given_clusters[1:-1].split(',')
+if(given_clusters[0] == ''):
+    given_clusters = []
+if(len(given_clusters) != 0):
+    given_clusters = list(map(int,given_clusters))
 
 GeneExpressions = []
 Groundtruth = []
@@ -90,10 +96,13 @@ print(np.shape(reducedSpace))
 centroid_val = []
 iterations = 100
 iteration_count = 0
-def get_initial_clusters(original_data,num_of_clusters):
+def get_initial_clusters(original_data,num_clusters):
     return (np.random.choice(original_data.shape[0], num_clusters, replace=False))
 
-centroid_no = np.asarray(get_initial_clusters(reducedSpace,num_clusters))
+if(len(given_clusters)==0):
+    centroid_no = np.asarray(get_initial_clusters(reducedSpace,num_clusters))
+else:
+    centroid_no = np.asarray(given_clusters)
 
 for i in range(len(centroid_no)):
     centroid_val.append(reducedSpace[centroid_no[i]-1])
@@ -130,6 +139,10 @@ def new_centroids(reducedSpace,centroids,clusters,clusters_id,num_of_iterations,
         print("Rand index")
         rd = helpers.rand(Groundtruth,vals)
         print(rd)
+
+        unique_predicted = list(set(vals))
+        new_x = helpers.pca(GeneExpressions)
+        helpers.scatter(new_x[:,0],new_x[:,1],vals,unique_predicted)
 
     else:
         kmeans(reducedSpace,new_centroid,iterations,num_clusters,iteration_count)
