@@ -84,7 +84,8 @@ def scatter(X1, X2, labels, unique_labels, algo="", file_name=""):
     for i, u in enumerate(unique_labels):
         xi = [X1[j] for j in range(len(X1)) if labels[j] == u]
         yi = [X2[j] for j in range(len(X2)) if labels[j] == u]
-        plt.scatter(xi, yi, c=colors[i], label=str(u), s=11)
+        plt.scatter(xi, yi, c=colors[i], label=str(u), s=35)
+
     plt.legend()
 
     plt.show()
