@@ -7,11 +7,11 @@ from operator import add
 import sklearn.metrics
 
 # Returns random clusters as initial clusters
-def get_initial_clusters(original_data,num_of_clusters):
-    return (np.random.choice(original_data.shape[0], num_of_clusters, replace=False))
+def get_initial_clusters(original_data,no_clusters):
+    return (np.random.choice(original_data.shape[0], no_cluster, replace=False))
 
 # Processes the gene data and gives the initial cluster centers along with gene expressions
-def get_data(file_name,num_of_clusters,centroid_arr,num_of_iterations):
+def get_data(file_name,no_cluster,centroid_arr,iterations):
     with open(file_name) as textFile:
         lines = [line.replace("\n","").split("\t") for line in textFile]
         data = np.array(lines, dtype='float')
@@ -44,7 +44,7 @@ def kmeans(data,centroids,num_of_iterations,num_of_clusters,iteration_count):
         dist = []
         minval = float('inf') 
         minIndex = -1
-        for j in range(0,5):
+        for j in range(num_of_clusters):
             if(distance.euclidean(gene_data,centroids[j])<minval):
                 minval = distance.euclidean(gene_data,centroids[j])
                 minIndex = j
