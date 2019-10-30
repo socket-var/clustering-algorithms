@@ -5,9 +5,11 @@ from scipy.stats import multivariate_normal
 
 
 class GMM:
-    def __init__(self, X, num_clusters):
+    def __init__(self, X, num_clusters, smoothing_value):
         self.X = X
         self.num_clusters = num_clusters
+        # smoothing value for iyer = 5 * 10**-8 cho = 10**-15
+        self.smoothing_value = smoothing_value if smoothing_value else 1
 
     def fit(self):
         N = self.X.shape[0]
@@ -28,44 +30,31 @@ class GMM:
 
             pred_sum = np.sum(self.predicted, axis=0)
             pi = pred_sum / N
+            mu = np.dot(self.X.T, self.predicted) / pred_sum
+            sigma = np.zeros((self.num_clusters, M, M))
 
-            mu, sigma = self.maximization()
+            for k in range(self.num_clusters):
+                for n in range(N):
+                    reduced_X = np.reshape(self.X[n]-mu[:, k], (M, 1))
+                    sigma[k] += self.predicted[n, k] * \
+                        np.dot(reduced_X, reduced_X.T)
+                sigma[k] /= pred_sum[k]
 
             last_likelihood = curr_likelihood
             curr_likelihood = self.log_likelihood(mu, sigma, pi)
 
             print("Iteration: {} , log likelihood: {}".format(i, curr_likelihood))
 
-            self.expectation(mu, sigma, pi)
+            for j in range(N):
+                for k in range(self.num_clusters):
+                    pdf = multivariate_normal.pdf(
+                        self.X[j], mean=mu[:, k], cov=sigma[k])
+                    self.predicted[j, k] = pi[k] * pdf
+                self.predicted[j] /= np.sum(self.predicted[j])
 
             i += 1
 
         return self.predicted
-
-    def expectation(self, mu, sigma, pi):
-        N = self.X.shape[0]
-
-        for j in range(N):
-            for k in range(self.num_clusters):
-                pdf = multivariate_normal.pdf(
-                    self.X[j], mean=mu[:, k], cov=sigma[k])
-                self.predicted[j, k] = pi[k] * pdf
-            self.predicted[j] /= np.sum(self.predicted[j])
-
-    def maximization(self):
-        N = self.predicted.shape[0]
-        M = self.X.shape[1]
-        pred_sum = np.sum(self.predicted, axis=0)
-        mu = np.dot(self.X.T, self.predicted) / pred_sum
-        sigma = np.zeros((self.num_clusters, M, M))
-
-        for k in range(self.num_clusters):
-            for n in range(N):
-                reduced_X = np.reshape(self.X[n]-mu[:, k], (M, 1))
-                sigma[k] += self.predicted[n, k] * \
-                    np.dot(reduced_X, reduced_X.T)
-            sigma[k] /= pred_sum[k]
-        return mu, sigma
 
     # Calculate negative log likelihood
     def log_likelihood(self, mu, sigma, pi):
@@ -75,7 +64,7 @@ class GMM:
         for n in range(N):
             for k in range(self.num_clusters):
                 np.fill_diagonal(
-                    sigma[k], sigma[k].diagonal()+(7*(10**-6)))
+                    sigma[k], sigma[k].diagonal()+self.smoothing_value)
                 loss += self.predicted[n, k]*math.log(pi[k])
                 loss += self.predicted[n, k] * \
                     multivariate_normal.logpdf(

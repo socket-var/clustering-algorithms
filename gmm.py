@@ -14,9 +14,13 @@ print(unique_labels)
 
 # 2. Declare any specific inputs to the program and call the algorithm
 num_clusters = int(input("Enter the number of Guassians: "))
+smoothing_value = input("Enter a smoothing value: ")
+
+if smoothing_value:
+    smoothing_value = eval(smoothing_value)
 
 # 3. Perform DBSCAN
-model = __gmm.GMM(X, num_clusters)
+model = __gmm.GMM(X, num_clusters, smoothing_value)
 predicted = model.fit()
 
 # get the predicted labels
