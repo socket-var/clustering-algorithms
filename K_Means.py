@@ -20,6 +20,7 @@ def get_data(file_name,num_of_clusters,centroid_arr,num_of_iterations):
             centroid_no = np.array(get_initial_clusters(data,no_cluster))
             print(centroid_no)
         else:
+            print(type(centroid_arr))
             centroid_no = np.array(centroid_arr)
             print(centroid_no)
         
@@ -38,8 +39,8 @@ def kmeans(data,centroids,num_of_iterations,num_of_clusters,iteration_count):
     clusters = [[] for _ in range(num_of_clusters)]
     clusters_id = [[] for _ in range(num_of_clusters)]
 
-    for i in range(0,386):
-        gene_data = data[i,2:18]
+    for i in range(0,len(data)):
+        gene_data = data[i,2:]
         dist = []
         minval = float('inf') 
         minIndex = -1
@@ -86,7 +87,7 @@ def new_centroids(data,centroids,clusters,clusters_id,num_of_iterations,num_of_c
         print(rd)
         
         unique_predicted = list(set(vals))
-        new_x = helpers.pca(data)
+        new_x = helpers.pca(data[:,2:])
         helpers.scatter(new_x[:,0],new_x[:,1],vals,unique_predicted)
     else:
         kmeans(data,new_centroid,iterations,no_cluster,iteration_count)
@@ -95,14 +96,16 @@ def new_centroids(data,centroids,clusters,clusters_id,num_of_iterations,num_of_c
 file_name = sys.argv[1]
 no_cluster = int(sys.argv[2])
 iterations = int(sys.argv[3])
+given_clusters = sys.argv[4]
+given_clusters = given_clusters[1:-1].split(',')
+if(given_clusters[0] == ''):
+    given_clusters = []
+if(len(given_clusters) != 0):
+    given_clusters = list(map(int,given_clusters))
 centroid_val = []
 iteration_count = 0
-kmean_count = 0
-overall_iterations = 0
-max_jaccard = float('-inf')
-max_clusters = []
 
-get_data(file_name,no_cluster,[],iterations)
+get_data(file_name,no_cluster,given_clusters,iterations)
 
 
 
