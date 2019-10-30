@@ -41,4 +41,4 @@ print(jaccard_score)
 
 new_X = helpers.pca(X)
 helpers.scatter(new_X[:, 0], new_X[:, 1],
-                predicted, unique_predicted)
+                predicted, unique_predicted, "DBSCAN", file_name)
