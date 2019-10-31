@@ -50,7 +50,8 @@ print(rand_score)
 print(jaccard_score)
 
 # # 5. Visualize using PCA
-
-new_X = helpers.pca(X)
+new_X = X
+if X.shape[1] > 2:
+    new_X = helpers.pca(X)
 helpers.scatter(new_X[:, 0], new_X[:, 1],
                 predicted, unique_predicted)
