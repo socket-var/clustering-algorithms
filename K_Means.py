@@ -88,7 +88,7 @@ def new_centroids(data,centroids,clusters,clusters_id,num_of_iterations,num_of_c
         
         unique_predicted = list(set(vals))
         new_x = helpers.pca(data[:,2:])
-        helpers.scatter(new_x[:,0],new_x[:,1],vals,unique_predicted)
+        helpers.scatter(new_x[:,0],new_x[:,1],vals,unique_predicted,"K-means Algorithm","iyer.txt")
     else:
         kmeans(data,new_centroid,iterations,no_cluster,iteration_count)
 
