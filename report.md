@@ -299,8 +299,56 @@ Jaccard index: 0.4018254061922184
 
 # Spectral Clustering:
 
+- Spectral clustering is a clustering technique which makes use of the Eigenvalues of the similarity matrix of the given dataset to perform dimensionality reduction before clustering into fewer dimensions.
+- Spectral clustering treats clustering as a graph partitioning problem without making any assumptions about the clusters, unlike K-means.
+
 ## Algorithm Description:
+
+1. Construct the similarity matrix (W) which represents the graph where the weights of the edges are given by the gaussian kernel.
+2. Then construct the degree matrix (D) which is the same size as that of the similarity matrix, except that it is a diagonal matrix where each entry in the diagonal corresponds to the sum of the values of that particular row in the similarity matrix.
+3. Build the Laplacian matrix given by L = W - D
+4. Find the eigen vectors and eigen values for L.
+5. Find the k minimum eigen values and their corresponding eigen vectors.
+6. Use the minimum eigen vectors to build the n\*k reduced space data where n is the total number of objects.
+7. Run K-means on the reduced space data to obtain the clusters.
+
+## Implementation:
+
+1. Construct the similarity matrix from getSimilarityMatrix() function by passing the dataset along with sigma value.
+2. Using the similarity matrix construct the degree matrix and compute the laplacian matrix using getLaplacianMatrix() function.
+3. Find the eigen vectors and eigen values using linalg.eig() funtion from numpy.
+4. Find the minimum eigen vectors and eigen values by constructing a dictionary and sorting the dictionary keys based on the key which is the eigen value.
+5. Construct the reduced space n\*k space data and run Kmeans using kmeans() funtion by passing the initial centroids and the number of clusters.
+6. Find the predicted clusters and find the Jaccard and Rand coefficients using predicted and ground-truth values.
 
 ## Result Visualization:
 
+### **iyer.txt:**
+
+Jaccard index: 0.16369894314733768
+
+Rand index: 0.24003606583136605
+
+![](./results/spectral_iyer.png)
+
+### **cho.txt:**
+
+Jaccard: 0.21558520315342633
+
+Rand index: 0.27075894654890065
+
+![](./results/spectral_cho.png)
+
 ## Result Evaluation:
+
+Spectral clustering generally performs well with datasets with outliers that cannot be easily determined by algorithms like K-means. In case of these datasets, algorithms like K-means performed well and the upside of using Spectral clustering cannot be seen here. In fact, in this case, spectral clustering performed worse than most of the other clustering algorithms.
+
+### Advantages:
+
+1. Spectral clustering does not make any strong assumptions about the shape and size of the clusters unlike K-means.
+2. Relatively easy to implement and reasonably fast for sparse datasets.
+
+### Disadvantages:
+
+1. Since we use K-means to compute the clusters after dimensionality reduction, the cluster assignment is not always deterministic. Depends on the choice of centroids.
+2. Computationally expensive since we’ve to calculate the Eigenvalues and Eigenvectors. Doing this for a very large dataset would increase the overall time complexity.
