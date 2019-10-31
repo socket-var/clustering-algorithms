@@ -3,6 +3,11 @@ import helpers
 import numpy as np
 import __gmm
 
+
+def _eval_input(a):
+    return eval(a) if a else ""
+
+
 file_name = input("Enter the dataset file name: ")
 
 X, y, unique_labels = helpers.import_txt(file_name)
@@ -14,13 +19,24 @@ print(unique_labels)
 
 # 2. Declare any specific inputs to the program and call the algorithm
 num_clusters = int(input("Enter the number of Guassians: "))
-smoothing_value = input("Enter a smoothing value: ")
+mu = _eval_input(input("Enter mean: "))
+sigma = _eval_input(input("Enter covariance: "))
+pi = _eval_input(input("Enter pi: "))
 
-if smoothing_value:
-    smoothing_value = eval(smoothing_value)
+convergence_threshold = input("Enter convergence threshold: ")
+max_iter = input("Enter maximum number of iterations: ")
+smoothing_value = input("Enter a smoothing value: ")
+convergence_threshold = _eval_input(
+    convergence_threshold)
+max_iter = int(max_iter) if max_iter else None
+smoothing_value = _eval_input(smoothing_value)
 
 # 3. Perform DBSCAN
-model = __gmm.GMM(X, num_clusters, smoothing_value)
+if mu and sigma and pi and convergence_threshold and smoothing_value and max_iter:
+    model = __gmm.GMM(X, num_clusters, mu, sigma, pi,
+                      convergence_threshold, smoothing_value, max_iter)
+else:
+    model = __gmm.GMM(X, num_clusters, smoothing_value=smoothing_value)
 predicted = model.fit()
 
 # get the predicted labels
